@@ -1,3 +1,10 @@
+//! A Rust IMU calibration library.
+//!
+//! Calibrates Acceleration and Gyroscopes with ROS-like datastructures to ease integration into
+//! ROS Nodes.
+//!
+//! The calibration process generates a file, which can be used for into application.
+
 use std::{
     collections::HashMap,
     fs::File,
@@ -8,6 +15,7 @@ use std::{
 
 use nalgebra as na;
 
+/// IMU Message similar to ROS.
 #[derive(Debug, Default)]
 pub struct ImuMsg {
     pub orientation: [f64; 4],
@@ -43,18 +51,34 @@ struct AccelerometerCalibration {
     pub reference_index: [usize; 6],
     pub reference_sign: [i32; 6],
     pub calib_ready: bool,
-    pub sm: na::Matrix3<f64>,   // combined scale and misalignment parameters
-    pub bias: na::Vector3<f64>, // scaled and rotated bias parameters
-    pub reference_acceleration: f64, // expected acceleration measurement (e.g. 1.0 for unit of g's, 9.80665 for unit of m/s^2)
+
+    /// Combined scale and misalignment parameters.
+    pub sm: na::Matrix3<f64>,
+
+    /// Scaled and rotated bias parameters.
+    pub bias: na::Vector3<f64>,
+
+    /// Expected acceleration measurement (e.g. 1.0 for unit of g's, 9.80665 for unit of m/s^2)
+    pub reference_acceleration: f64,
+
     pub calib_initialized: bool,
     pub orientation_count: [usize; 6],
-    pub meas: na::DMatrix<f64>,       // least squares measurements matrix
-    pub ref_: na::DVector<f64>,       // least squares expected measurements vector
-    pub num_measurements: usize,      // number of measurements expected for this calibration
-    pub measurements_received: usize, // number of measurements received for this calibration
+
+    /// Least squares measurements matrix.
+    pub meas: na::DMatrix<f64>,
+
+    /// Least squares expected measurements vector.
+    pub ref_: na::DVector<f64>,
+
+    /// Number of measurements expected for this calibration.
+    pub num_measurements: usize,
+
+    /// Number of measurements received for this calibration.
+    pub measurements_received: usize,
 }
 
 impl AccelerometerCalibration {
+    /// Initialize new calibration process or load from file.
     pub fn create(calib_file_path: Option<String>) -> anyhow::Result<Self> {
         let reference_index = [0, 0, 1, 1, 2, 2];
         let reference_sign = [1, -1, 1, -1, 1, -1];
@@ -251,6 +275,7 @@ impl AccelerometerCalibration {
     }
 }
 
+/// Possible states in the processing Statemachine.
 #[derive(Debug)]
 pub enum CalibState {
     START,
@@ -260,6 +285,7 @@ pub enum CalibState {
     DONE,
 }
 
+/// Calibration Process Statemachine.
 #[derive(Debug)]
 pub struct CalibrateProcess {
     state: CalibState,
@@ -274,6 +300,7 @@ pub struct CalibrateProcess {
 }
 
 impl CalibrateProcess {
+    /// Starting new calibration.
     pub fn new(
         measurements_per_orientation: usize,
         reference_acceleration: f64,
@@ -314,6 +341,8 @@ impl CalibrateProcess {
         }
     }
 
+    /// Processing the incoming IMU data in respect to the current state.
+    /// Use this function inside your ROS callback.
     pub fn imu_callback(&mut self, imu: ImuMsg) -> anyhow::Result<()> {
         match self.state {
             CalibState::START => {
@@ -369,11 +398,13 @@ impl CalibrateProcess {
         Ok(())
     }
 
+    /// Indication for the finished Statemachine.
     pub fn is_done(&self) -> bool {
         matches!(self.state, CalibState::DONE)
     }
 }
 
+/// State for application of a given calibration.
 #[derive(Debug)]
 pub struct CalibrationApplication {
     calibrate_gyros: bool,
@@ -385,6 +416,7 @@ pub struct CalibrationApplication {
 }
 
 impl CalibrationApplication {
+    /// Initialize the state. Loading from the calibration file can fail.
     pub fn create(
         calibrate_gyros: bool,
         gyro_calib_samples: usize,
@@ -410,6 +442,9 @@ impl CalibrationApplication {
         })
     }
 
+    /// Apply calibration to the incoming IMU messages.
+    /// Use this function inside your callback from the sensor.
+    /// Returns None as long as gyros are getting initialized.
     pub fn imu_callback(&mut self, mut imu: ImuMsg) -> Option<ImuMsg> {
         if self.calibrate_gyros {
             if !self.printed_gyro_calib_warning {

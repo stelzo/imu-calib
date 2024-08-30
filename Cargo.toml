@@ -2,6 +2,30 @@
 name = "imu-calib"
 version = "0.1.0"
 edition = "2021"
+authors = ["Christopher Sieh <stelzo@steado.de>"]
+description = "IMU calibration library for Rust."
+repository = "https://github.com/stelzo/imu-calib"
+license = "MIT OR Apache-2.0"
+keywords = ["ros", "imu", "calibration"]
+categories = [
+    "science::robotics",
+]
+readme = "README.md"
+documentation = "https://docs.rs/imu-calib"
+homepage = "https://github.com/stelzo/imu-calib"
+exclude = [
+    "**/.github/**",
+    "**/tests/**",
+    "**/examples/**",
+    "**/benches/**",
+    "**/target/**",
+    "**/build/**",
+    "**/dist/**",
+    "**/docs/**",
+    "**/doc/**",
+    "**/ensure_no_std/**",
+]
+rust-version = "1.65"
 
 [dependencies]
 anyhow = "1"
