@@ -1,10 +1,10 @@
 [package]
 name = "imu-calib"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 authors = ["Christopher Sieh <stelzo@steado.de>"]
-description = "IMU calibration library for Rust."
-repository = "https://github.com/stelzo/imu-calib"
+description = "Kalibr-compatible IMU intrinsic calibration and correction library for Rust."
+repository = "https://codeberg.com/stelzo/imu-calib"
 license = "MIT OR Apache-2.0"
 keywords = ["ros", "imu", "calibration"]
 categories = [
@@ -12,7 +12,7 @@ categories = [
 ]
 readme = "README.md"
 documentation = "https://docs.rs/imu-calib"
-homepage = "https://github.com/stelzo/imu-calib"
+homepage = "https://codeberg.com/stelzo/imu-calib"
 exclude = [
     "**/.github/**",
     "**/tests/**",
@@ -27,6 +27,13 @@ exclude = [
 ]
 rust-version = "1.89.0"
 
+[features]
+default = ["kalibr"]
+kalibr = ["serde", "dep:serde_yaml"]
+serde = ["dep:serde"]
+
 [dependencies]
 anyhow = "1.0"
 nalgebra = "0.35"
+serde = { version = "1", features = ["derive"], optional = true }
+serde_yaml = { version = "0.9", optional = true }
