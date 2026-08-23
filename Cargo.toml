@@ -1,6 +1,6 @@
 [package]
 name = "imu-calib"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["Christopher Sieh <stelzo@steado.de>"]
 description = "IMU calibration library for Rust."
@@ -25,8 +25,8 @@ exclude = [
     "**/doc/**",
     "**/ensure_no_std/**",
 ]
-rust-version = "1.65"
+rust-version = "1.89.0"
 
 [dependencies]
-anyhow = "1"
-nalgebra = "0.33"
+anyhow = "1.0"
+nalgebra = "0.35"
