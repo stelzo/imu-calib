@@ -1,6 +1,6 @@
 [package]
 name = "imu-calib"
-version = "0.3.0"
+version = "0.3.1"
 edition = "2021"
 authors = ["Christopher Sieh <stelzo@steado.de>"]
 description = "Kalibr-compatible IMU intrinsic calibration and correction library for Rust."

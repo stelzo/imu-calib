@@ -25,8 +25,6 @@ println!("gyro random walk:    {}", noise.gyro_random_walk);
 std::fs::write("allan.csv", result.to_csv_string())?;
 ```
 
-White noise is read off the `−1/2` slope at `τ = 1 s`, bias random walk off the `+1/2` slope at `τ = 3 s`. `noise()` returns an error if the recording is too short to show either region.
-
 ## Intrinsics
 
 Needs no camera and no target. Hold the IMU still in at least nine well-spread
@@ -55,12 +53,6 @@ match session.push(t, raw_accel, raw_gyro) {
 }
 ```
 
-For a finished recording, `estimate::calibrate_recording` finds the static
-stretches itself. Both return a `CalibrationReport`; check its residuals.
-
-With only the six axis-aligned faces, set
-`accel_parametrization: AccelParametrization::ScaleBias`.
-
 ## Apply
 
 ```rust
@@ -72,12 +64,6 @@ let corrector = intrinsics.corrector()?;   // build once
 // per sample:
 let (accel, gyro) = corrector.correct(raw_accel, raw_gyro);
 ```
-
-`correct_msg` and `correct_msg_in_place` take a ROS-shaped [`ImuMsg`].
-
-`ImuCorrector::gyro_bias_from_static` re-estimates the gyro bias from a few
-seconds of stationary data, which is worth doing at startup — bias moves with
-temperature and between power cycles, scale and misalignment do not.
 
 ## Kalibr interop
 
@@ -101,14 +87,6 @@ intrinsics.save_kalibr_input_yaml("imu0.yaml")?;
 ```bash
 rosrun kalibr kalibr_calibrate_imu_camera --target april_6x6_80x80cm.yaml --imu imu0.yaml --imu-models scale-misalignment --cam camchain.yaml --bag dynamic.bag
 ```
-
-For low-cost MEMS parts the Kalibr wiki suggests inflating the measured noise
-densities by 10× or more before using them in an estimator.
-
-## Command line
-
-[binnacle](https://codeberg.com/stelzo/binnacle) runs both estimators over an
-MCAP recording: record a bag, get a Kalibr YAML.
 
 ### License
 
