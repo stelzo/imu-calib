@@ -4,26 +4,6 @@ Kalibr-compatible IMU intrinsic calibration for Rust: estimate the parameters, t
 
 Implements the model from Rehder et al., "Extending Kalibr: Calibrating the Extrinsics of Multiple IMUs and of Individual Axes", ICRA 2016, and reads and writes the YAML files [Kalibr](https://github.com/ethz-asl/kalibr) uses.
 
-## Workflow
-
-Two independent parameter groups, from two different recordings.
-
-```
-        long stationary recording                 static poses + rotations
-                    │                                        │
-                    ▼                                        ▼
-          allan::AllanEstimator              estimate::calibrate_recording
-                    │                                        │
-       noise densities, random walks         M_a, M_g, C_gyro_i, b_a, b_g
-                    │                                        │
-                    └───────────────► ImuIntrinsics ◄───────────┘
-                                           │
-                          ┌──────────────────┴──────────────────┐
-                          ▼                                 ▼
-         save_kalibr_input_yaml()                     ImuCorrector
-           feeds the Kalibr run                 corrects a live stream
-```
-
 ## Noise parameters
 
 Record at least 3 hours with the IMU undisturbed, away from vibration.
